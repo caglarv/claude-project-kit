@@ -1,0 +1,21 @@
+{
+  "name": "claude-project-kit",
+  "owner": {
+    "name": "caglarv"
+  },
+  "metadata": {
+    "description": "A project skeleton for long-running Claude Code work: NOW.md, standing rules, hooks and a /close-out procedure",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "now-kit",
+      "description": "Sets up a Claude Code project folder with NOW.md, RULES.md, CLAUDE.md, eight project hooks and a /close-out skill",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/now-kit"
+      ]
+    }
+  ]
+}
