@@ -1,5 +1,7 @@
 # Claude project kit
 
+![now-kit: new chat loads NOW.md, work, /close-out saves state and lessons, paste the resume note into the next chat](docs/overview.png)
+
 Long projects with Claude Code tend to lose the thread: every new chat starts with "where were we?", Claude says "done" without checking,
 and what was decided last week is forgotten. This kit gives each project a small, fixed structure that Claude reads and keeps up to date on its own.
 
