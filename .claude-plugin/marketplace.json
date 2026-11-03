@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "now-kit",
-      "description": "Sets up a Claude Code project folder with NOW.md, RULES.md, CLAUDE.md, eight project hooks and a /close-out skill",
+      "description": "Sets up a Claude Code project folder with NOW.md, RULES.md, CLAUDE.md, five project-scoped hooks (no network calls) and a /close-out skill",
       "source": "./",
       "strict": false,
       "skills": [
