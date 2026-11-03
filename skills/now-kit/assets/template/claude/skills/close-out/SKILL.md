@@ -7,6 +7,7 @@ description: Session close-out procedure (the user says "start the close-out" or
 
 Before the context fills up, when the user triggers it. Steps IN ORDER; [script] steps are commands, [assistant] steps are you.
 If a step fails, stop and write the reason in one line; don't move on.
+Windows: if `python3` is missing or opens the Microsoft Store, run the same commands with `py -3` instead of `python3`.
 
 1. **[script]** `python3 .claude/hooks/close.py archive` → copy of `NOW.md` at `evidence/now_archive/<date>_NOW.md`.
 2. **[assistant]** Self-review (goes into NOW, not the chat). Scale it to the session: for a simple session

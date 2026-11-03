@@ -47,6 +47,7 @@ If the user's machine has global hooks (`~/.claude/hooks`), leave them alone and
    ```
    Claude Code replaces `${CLAUDE_SKILL_DIR}` with this skill's folder when the skill loads (plugin install or manual copy alike).
    It is not a shell variable: if you see it unreplaced, use the base directory shown when the skill loaded.
+   Windows: if `python3` is missing or opens the Microsoft Store ("Python was not found"), use `py -3` in its place here and in every later `python3` command. The installed hooks find Python on their own (`.claude/hooks/py.sh`).
    The exit code must be 0 and the last line `VERIFICATION OK …` (the verdict is always printed last). If the folder already had a `.claude/settings.json` or `.gitignore`, verification checks that they still register every hook and keep secrets/data out; if not, it lists what to merge — merge it with the user, never overwrite their file. If it says `FAILED`, fix the cause and rerun; don't say "installed".
    If there are "skipped" lines, tell the user which files kept their old version.
 4. **Fill in the project-specific part** (the script can't do this, you do):

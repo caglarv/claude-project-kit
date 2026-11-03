@@ -22,6 +22,8 @@ In Claude Code:
 /plugin install now-kit@claude-project-kit
 ```
 
+The `/plugin` commands work in the terminal version of Claude Code (`claude`). Where they aren't available (for example in the desktop app), copy the skill by hand instead; the skill is then called `/now-kit` rather than `/now-kit:now-kit`, and it shows up in chats started after the copy. Use one install method, not both.
+
 Or copy the skill by hand:
 
 ```bash
@@ -67,7 +69,7 @@ The script never overwrites a file that already exists. If your project already 
 ├── .gitignore
 └── .claude/
     ├── settings.json  registers the hooks below
-    ├── hooks/         8 hook scripts + state_io.py, a shared helper (see below)
+    ├── hooks/         8 hook scripts + state_io.py and py.sh, shared helpers (see below)
     └── skills/close-out/SKILL.md
 ```
 
@@ -94,7 +96,7 @@ Optional, in the project's `.claude/settings.json` under an `"env"` block:
 
 - The skill: `/plugin uninstall now-kit@claude-project-kit` (or delete `~/.claude/skills/now-kit` if you copied it by hand).
 - From a project, remove only what this kit added:
-  1. In `.claude/hooks/` delete these nine files: `now_load.sh`, `now_check.py`, `due_dates.py`, `precompact_snapshot.sh`, `claim_check.py`, `close_reminder.py`, `safety_net.py`, `close.py`, `state_io.py`. Delete the `.claude/hooks/` folder only if it is empty afterwards (other tools may keep their own hooks there).
+  1. In `.claude/hooks/` delete these ten files: `now_load.sh`, `now_check.py`, `due_dates.py`, `precompact_snapshot.sh`, `claim_check.py`, `close_reminder.py`, `safety_net.py`, `close.py`, `state_io.py`, `py.sh`. Delete the `.claude/hooks/` folder only if it is empty afterwards (other tools may keep their own hooks there).
   2. Delete `.claude/skills/close-out/`.
   3. In `.claude/settings.json` remove only the hook entries whose command points to one of the files above — keep any hooks other tools added.
   4. `.claude/state/` holds only this kit's logs and notes; delete it if you like.
@@ -126,9 +128,10 @@ The agent doesn't have to be a Claude model, but the instructions were written a
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) (recommended; see [Without Claude Code](#without-claude-code) otherwise)
-- Python 3.9 or newer (`python3 --version`)
+- Python 3.9 or newer (`python3 --version`; on Windows `py -3 --version`). The hooks run Python through `py.sh`, which tries `python3`, then `py -3`, then `python`.
 - git (optional, needed for the close-out commit)
 - macOS or Linux (the hooks use `sh`). Tested on macOS with Python 3.9.6, including a live Claude Code session (setup, session start, close-out). Linux is intended to work but has not been tested. The pre-compaction and session-end hooks have only been tested with simulated input so far.
+- Windows: not officially supported. One user tried it with Git Bash (which provides `sh`) and Python 3.12 in the Claude desktop app: setup passed and the session-start hook loaded NOW.md, after turning off the Microsoft Store `python.exe` / `python3.exe` entries under Settings → Apps → Advanced app settings → App execution aliases. The `py -3` fallback in `py.sh` was added after that test and has not been tried on Windows yet.
 
 ## License
 

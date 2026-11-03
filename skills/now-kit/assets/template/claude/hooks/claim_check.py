@@ -43,15 +43,17 @@ SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+|\n+")
 CLAUSE_SPLIT = re.compile(r"[,;:]|\s(?:but|and|while|however|although|though)\s", re.I)
 
 ENV_PREFIX = re.compile(r"^(\w+=\S*\s+)+")
+# python / python3 / python3.11, or the Windows launcher `py` / `py -3` / `py -3.12`
+PYEXE = r"((\S*/)?python3?(\.\d+)?|py(\s+-3(\.\d+)?)?)"
 TEST_START = re.compile(
     r"^((\S*/)?(pytest|py\.test)|(uv|poetry|pipenv|hatch|pdm)\s+run\s+((\S*/)?python3?\s+-m\s+)?pytest"
-    r"|(\S*/)?python3?(\.\d+)?\s+(-m\s+(pytest|unittest)|\S*(tests?/run\.py|test\S*\.py))"
+    r"|" + PYEXE + r"\s+(-m\s+(pytest|unittest)|\S*(tests?/run\.py|test\S*\.py))"
     r"|npm\s+(run\s+)?test|yarn\s+test|pnpm\s+test|make\s+test|go\s+test|cargo\s+test|tox|nox)\b")
 # A Bash segment whose PROGRAM (first word) looks like these but doesn't match the strict forms above is
 # doubt, not proof of absence (e.g. ./run_tests.sh). Words printed by echo or a description never count.
 LOOSE = {"test": r"test", "commit": r"(^|/)git$", "finding": r"$^", "other": r"test|(^|/)git$|now_check|close\.py"}
 GIT_START = re.compile(r"^git\s+(commit|push|log|show|rev-parse)\b")
-OTHER_START = re.compile(r"^((\S*/)?python3?\s+\S*(now_check|close)\.py|git\s+(status|diff))\b")
+OTHER_START = re.compile(r"^(" + PYEXE + r"\s+\S*(now_check|close)\.py|git\s+(status|diff))\b")
 READ_START = re.compile(r"^(grep|rg|cat|head|tail|sed|less|awk)\b")
 EVIDENCE_FILE = re.compile(r"evidence/(INDEX\.md|20\d\d-)")
 # Source: a lesson from a real project: presenting something already recorded as a discovery,

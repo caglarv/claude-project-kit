@@ -5,7 +5,8 @@
 # Keeps the newest 5 snapshots. Always exits 0 (never blocks compaction).
 D="${CLAUDE_PROJECT_DIR:-$PWD}"
 H="$D/.claude/hooks"
-TRIG="$(python3 -c 'import sys,json; print(json.load(sys.stdin).get("trigger",""))' 2>/dev/null)"
+PY() { sh "$H/py.sh" "$@"; }  # first working Python 3.9+, see py.sh
+TRIG="$(PY -c 'import sys,json; print(json.load(sys.stdin).get("trigger",""))' 2>/dev/null)"
 # state_io.py writes it under a name that can't collide and keeps the newest 5.
 {
   printf '# Disk state before compaction · %s · trigger=%s\n' "$(date -u '+%Y-%m-%d %H:%MZ')" "${TRIG:-?}"
@@ -16,5 +17,5 @@ TRIG="$(python3 -c 'import sys,json; print(json.load(sys.stdin).get("trigger",""
   (cd "$D" && find . -type f -mmin -180 -not -path "./.git/*" -not -path "./.venv/*" -not -path "./data/*" -not -path "*/state/*" -not -name ".DS_Store" 2>/dev/null | head -30)
   printf '## NOW.md — Next ONE step\n'
   awk '/^## Next ONE step/{f=1;next} /^## /{f=0} f' "$D/NOW.md" 2>/dev/null
-} 2>/dev/null | python3 "$H/state_io.py" "$D" create compact 5 2>/dev/null
+} 2>/dev/null | PY "$H/state_io.py" "$D" create compact 5 2>/dev/null
 exit 0
