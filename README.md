@@ -66,12 +66,12 @@ The script never overwrites a file that already exists. If your project already 
 ├── NOW.md             "what now?" page, ≤40 lines, 8 fixed sections
 ├── RULES.md           standing rules, searched when needed
 ├── TODO.md            deferred work and ideas
-├── evidence/          decision & evidence index; old NOW.md copies
+├── evidence/          decision & evidence index; old NOW.md copies; DECISIONS.md (never trimmed)
 ├── data/              raw/personal data, kept out of git
 ├── .gitignore
 └── .claude/
     ├── settings.json  registers the hooks below
-    ├── hooks/         8 hook scripts + state_io.py and py.sh, shared helpers (see below)
+    ├── hooks/         8 hook scripts + 5 helpers: state_io.py, py.sh, secret_filter.py, decisions.py, memory_audit.py (see below)
     └── skills/close-out/SKILL.md
 ```
 
@@ -81,7 +81,8 @@ The hooks, and when they run:
 - **Before compaction** (`precompact_snapshot.sh`): saves git state, recently changed files and the next step.
 - **After every answer** (`claim_check.py`, `close_reminder.py`): logs English "done / fixed / tests passed" sentences that no successful command backs up (it sees that a command ran without error, not what it proved — treat the log as "worth a look"; it only writes a log and never stops Claude), and reminds you to close out once the chat passes ≈300k and ≈600k tokens.
 - **On chat end** (`safety_net.py`): if no close-out happened, writes git state, your last messages and the next step to `.claude/state/`.
-- **During close-out** (`close.py`): archives NOW.md and writes `resume_prompt.md`.
+- **During close-out** (`close.py`, `decisions.py`, `memory_audit.py`): archives NOW.md, appends its "Dead ends" and "Decision:" lines to `evidence/DECISIONS.md` (NOW.md keeps only 5; this list is never trimmed, and a decision reworded at a later close-out isn't added twice), writes `resume_prompt.md`, and lists memory problems read-only: notes missing from `MEMORY.md`, near-duplicate notes or lessons, file paths that no longer exist, notes untouched for 120+ days.
+- **Secret filter** (`secret_filter.py`): the session-end note and the claims log pass through it, so an API key or password you pasted into the chat is written as `[SECRET]` (GitHub, OpenAI, Anthropic, AWS, Stripe, Slack, Google, Telegram, JWT, private keys, `password=` style pairs …). Add your own literal values to `.claude/state/secret_extras.txt`, one per line.
 - **Shared helper** (`state_io.py`): every hook writes to `.claude/state/` through it; it refuses symlinks that lead outside the project and never overwrites an earlier note.
 
 The plugin adds the `now-kit` skill at the scope you choose when installing it. The hooks are copied into each project when you set it up and only run inside that project. These hook scripts make no network requests of their own.
@@ -98,7 +99,7 @@ Optional, in the project's `.claude/settings.json` under an `"env"` block:
 
 - The skill: `/plugin uninstall now-kit@claude-project-kit` (or delete `~/.claude/skills/now-kit` if you copied it by hand).
 - From a project, remove only what this kit added:
-  1. In `.claude/hooks/` delete these ten files: `now_load.sh`, `now_check.py`, `due_dates.py`, `precompact_snapshot.sh`, `claim_check.py`, `close_reminder.py`, `safety_net.py`, `close.py`, `state_io.py`, `py.sh`. Delete the `.claude/hooks/` folder only if it is empty afterwards (other tools may keep their own hooks there).
+  1. In `.claude/hooks/` delete these thirteen files: `now_load.sh`, `now_check.py`, `due_dates.py`, `precompact_snapshot.sh`, `claim_check.py`, `close_reminder.py`, `safety_net.py`, `close.py`, `state_io.py`, `py.sh`, `secret_filter.py`, `decisions.py`, `memory_audit.py`. Delete the `.claude/hooks/` folder only if it is empty afterwards (other tools may keep their own hooks there).
   2. Delete `.claude/skills/close-out/`.
   3. In `.claude/settings.json` remove only the hook entries whose command points to one of the files above — keep any hooks other tools added.
   4. `.claude/state/` holds only this kit's logs and notes; delete it if you like.
@@ -138,3 +139,7 @@ The agent doesn't have to be a Claude model, but the instructions were written a
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Credits
+
+The secret filter's pattern list, and the ideas behind `decisions.py` and `memory_audit.py`, come from [avenoxbeyin](https://github.com/avenoxai/avenoxbeyin) (MIT License, Copyright (c) 2026 Avenox). `decisions.py` and `memory_audit.py` were written anew for this kit.

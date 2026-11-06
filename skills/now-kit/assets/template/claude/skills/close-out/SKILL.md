@@ -9,7 +9,8 @@ Before the context fills up, when the user triggers it. Steps IN ORDER; [script]
 If a step fails, stop and write the reason in one line; don't move on.
 Windows: if `python3` is missing or opens the Microsoft Store, run the same commands with `py -3` instead of `python3`.
 
-1. **[script]** `python3 .claude/hooks/close.py archive` → copy of `NOW.md` at `evidence/now_archive/<date>_NOW.md`.
+1. **[script]** `python3 .claude/hooks/close.py archive` → copy of `NOW.md` at `evidence/now_archive/<date>_NOW.md`;
+   "Dead ends" items + "Decision:" lines are appended to `evidence/DECISIONS.md` (never trimmed). Read the `decisions:` line of the output.
 2. **[assistant]** Self-review (goes into NOW, not the chat). Scale it to the session: for a simple session
    one honest line ("nothing suspicious; X deferred") is enough — don't invent worries. Ask: (a) What am I least sure of?
    (b) What did I not do, skip or assume? (c) If this breaks in 3 months, what is the most likely cause?
@@ -27,6 +28,8 @@ Windows: if `python3` is missing or opens the Microsoft Store, run the same comm
    First ask: where did the user correct me this session? Every correction becomes a lesson or a memory line, or the reason it doesn't is known.
    Machine/person specific things (file location, account, preference) → `~/.claude/projects/.../memory/` + a `MEMORY.md` line.
    DON'T copy project facts into MEMORY.md (they live in the repo).
+   Then `python3 .claude/hooks/memory_audit.py` (read-only). If it says `MEMORY <N> warning(s)`, fix each one
+   (update a dead path, merge duplicate notes, add the missing index line) or write in NOW "Pending" why it stays.
 7. **[script]** If `tests/run.py` exists, run it (`.venv/bin/python` or `python3`). If it fails, the close-out STOPS; fix it first.
    If there is no test folder, mark this step "no tests".
 8. **[assistant]** Commit (if it's a git repo): only this session's files. `git add <files>` and `git commit` as SEPARATE commands;

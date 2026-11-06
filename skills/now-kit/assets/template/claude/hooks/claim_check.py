@@ -28,6 +28,13 @@ import sys
 
 import state_io  # same folder
 
+sys.dont_write_bytecode = True  # no __pycache__ inside .claude/hooks
+try:  # passwords/keys must not reach the log
+    from secret_filter import scrub
+except Exception:
+    def scrub(_text: str) -> str:
+        return "(secret filter missing; summary not written)"
+
 CLAIMS = {
     "finding": r"new finding|for the first time|unexpected(ly)?|discovered|surprising|"
                r"root cause|the real reason|the reason is|the real issue",
@@ -192,7 +199,7 @@ def main():
         return 0
     root = os.environ.get("CLAUDE_PROJECT_DIR") or d.get("cwd") or os.getcwd()
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    summary = re.sub(r"\s+", " ", msg)[:80]
+    summary = scrub(re.sub(r"\s+", " ", msg))[:80]
     calls = last_turn(d.get("transcript_path", ""))
     if calls is None:
         state_io.write(root, "claims.log", f"{ts} · {claims[0][1]} · unknown (transcript unreadable or cut off) · {summary}\n", append=True)

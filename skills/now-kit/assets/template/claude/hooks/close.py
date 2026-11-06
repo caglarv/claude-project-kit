@@ -2,7 +2,8 @@
 """close.py — the scripted steps of the close-out procedure (/close-out).
 
   python3 .claude/hooks/close.py archive    NOW.md → evidence/now_archive/<date>_NOW.md (a COPY, not a move,
-                                            so NOW isn't lost if the session dies halfway)
+                                            so NOW isn't lost if the session dies halfway), then decisions.py collect
+                                            appends its decisions to evidence/DECISIONS.md
   python3 .claude/hooks/close.py finish     STOPS unless now_check.py says OK; reads the commit hash itself
                                             ("none" if not a git repo); overwrites resume_prompt.md; prints a one-line summary.
                                             --session <id> also writes .claude/state/closed_<id> for safety_net.py
@@ -51,6 +52,13 @@ def archive() -> int:
             continue
         shutil.copystat(NOW, dst)
         print(f"archived: {os.path.relpath(dst, ROOT)}")
+        try:  # "Dead ends" + "Decision:" lines → evidence/DECISIONS.md (never trimmed); an error never stops the close-out
+            sys.dont_write_bytecode = True
+            sys.path.insert(0, H)
+            import decisions
+            decisions.main(["collect", "--now", NOW])
+        except Exception as exc:  # noqa: BLE001
+            print(f"decisions: skipped ({type(exc).__name__})")
         return 0
     print("could not find a free archive name")
     return 1

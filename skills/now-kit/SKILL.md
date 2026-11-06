@@ -19,13 +19,16 @@ Why it exists: the old kit was copied by hand; steps got skipped (one project ne
 ├── NOW.md             "What now?" — ≤40 lines, 8 fixed sections, printed by a hook on start
 ├── RULES.md           standing rules (§1 file roles … §7 never), not read on start, grep'd when needed
 ├── TODO.md            deferred work and ideas
-├── evidence/INDEX.md  receipt index (R-<PREFIX>-NN); evidence/now_archive/ holds old NOW files
+├── evidence/INDEX.md  receipt index (R-<PREFIX>-NN); evidence/now_archive/ holds old NOW files; evidence/DECISIONS.md appears at the first close-out
 ├── data/              raw/personal data that never goes into the repo
 ├── .gitignore         secrets, data, .claude/state stay out; hooks/skills/rules stay in
 └── .claude/
     ├── settings.json  SessionStart · PreCompact · Stop · SessionEnd registrations
     ├── hooks/         now_load.sh · now_check.py · due_dates.py · close.py · close_reminder.py ·
-    │                  safety_net.py · claim_check.py · precompact_snapshot.sh · state_io.py (shared helper)
+    │                  safety_net.py · claim_check.py · precompact_snapshot.sh · state_io.py (shared helper) ·
+    │                  secret_filter.py (removes passwords/keys from text written to disk) ·
+    │                  decisions.py (Dead ends → evidence/DECISIONS.md, never trimmed) ·
+    │                  memory_audit.py (memory: duplicates / dead paths / missing index lines / old notes; read-only)
     ├── rules/         (empty) rules that load when a given folder is touched go here
     └── skills/close-out/SKILL.md   the /close-out procedure
 ```

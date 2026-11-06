@@ -13,9 +13,10 @@ Source: now-kit skill ({{DATE}}); the layout is generalised from two real projec
 | `CLAUDE.md` (root) | short instructions loaded every session | ≤30 lines; rules go to RULES, not here |
 | `evidence/INDEX.md` + `evidence/*R-{{PREFIX}}-NN*` | decision + evidence index, **permanent** history | rows are never deleted, invalid ones get `~~stale~~` + a pointer · at close-out check this session's receipts are listed |
 | `evidence/now_archive/` | old NOW files | not loaded by default, grep it |
+| `evidence/DECISIONS.md` | a never-trimmed list of NOW "Dead ends" items and "Decision:" lines | `close.py archive` appends (`decisions.py`); lines are never deleted, one that no longer holds is `~~struck through~~` · not loaded on start, grep it |
 | `TODO.md` (root) | deferred work, open decisions, ideas | written when the user says "not now" · items never deleted, `[x]` + receipt when done · not read on start |
 | `data/` | raw data, personal data, reports | **not in the repo**; never sent outside; tests don't write here |
-| `.claude/` | hooks/skills/rules (in the repo) | `settings.json` 4 events (SessionStart, PreCompact, Stop, SessionEnd) · `state/` logs (ignored) · `skills/close-out` = `/close-out` · `rules/<area>.md` = rules loaded automatically when that folder is touched |
+| `.claude/` | hooks/skills/rules (in the repo) | `settings.json` 4 events (SessionStart, PreCompact, Stop, SessionEnd) · `state/` logs (ignored; messages/summaries written there pass `secret_filter.py`, your own values: `state/secret_extras.txt`) · `skills/close-out` = `/close-out` · `rules/<area>.md` = rules loaded automatically when that folder is touched |
 | `~/.claude/projects/.../memory/` | machine/person specific (file locations, accounts, preferences) | project facts are NOT copied here (they live in the repo) |
 
 ## §2 Before writing a claim (no exceptions)

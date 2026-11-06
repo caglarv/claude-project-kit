@@ -8,6 +8,7 @@ Writes nothing only when a close-out is PROVEN for this run of the session: now_
 than the start AND no human message may have arrived after it. Anything less (no markers, an unreplaced
 ${CLAUDE_SESSION_ID}, more work after the close) leaves a note — an extra note is harmless, a missing one is not.
 Keeps the newest 5 notes; now_load.sh shows each one once. Markers older than 30 days are removed.
+Messages are passed through secret_filter.py before they are written (passwords/keys → [SECRET]).
 Always exits 0.
 """
 import datetime
@@ -18,6 +19,13 @@ import subprocess
 import sys
 
 import state_io  # same folder
+
+sys.dont_write_bytecode = True  # no __pycache__ inside .claude/hooks
+try:  # passwords/keys must not reach the disk; without the filter the messages are not written at all
+    from secret_filter import scrub
+except Exception:
+    def scrub(_text: str) -> str:
+        return "(secret_filter.py missing; message not written for safety)"
 
 
 def last_human_time(transcript: str):
@@ -61,7 +69,7 @@ def last_messages(transcript: str, count: int = 3):
                     p.get("text", "") for p in (c or []) if isinstance(p, dict) and p.get("type") == "text"]
                 text = " ".join(p for p in parts if p and not p.lstrip().startswith("<")).strip()
                 if text:
-                    out.append(" ".join(text.split())[:200])
+                    out.append(scrub(" ".join(text.split()))[:200])  # filter first, then cut (no half token)
     except OSError:
         pass
     return out[-count:]
@@ -88,8 +96,8 @@ def main() -> None:
     if not state:
         return  # .claude/state leads outside the project — write nothing
     # Per-project differences via settings.json "env": CLOSE_NOW / CLOSE_PROMPT / CLOSE_GIT (paths relative to root).
-    now_path = os.path.join(root, os.environ.get("CLOSE_NOW", "NOW.md"))
-    git_root = os.path.join(root, os.environ.get("CLOSE_GIT", "."))
+    now_path = os.path.join(root, (os.environ.get("CLOSE_NOW") or "NOW.md"))
+    git_root = os.path.join(root, (os.environ.get("CLOSE_GIT") or "."))
     if sid:
         started = state_io.regular_mtime(os.path.join(state, f"start_{sid}"))
         closed = state_io.regular_mtime(os.path.join(state, f"closed_{sid}"))
