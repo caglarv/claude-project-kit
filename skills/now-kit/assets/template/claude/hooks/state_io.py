@@ -33,8 +33,14 @@ def state_dir(root: str):
     return d
 
 
+# Windows has no O_NOFOLLOW: there a symlink is refused by a check just before opening instead.
+NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
+
+
 def _open(path: str, flags: int) -> int:
-    return os.open(path, flags | os.O_NOFOLLOW, 0o644)
+    if not NOFOLLOW and os.path.islink(path):
+        raise OSError(f"refusing to follow a symlink: {path}")
+    return os.open(path, flags | NOFOLLOW, 0o644)
 
 
 def write(root: str, name: str, text: str, append: bool = False):
