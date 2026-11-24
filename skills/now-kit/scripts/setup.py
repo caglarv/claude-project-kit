@@ -199,6 +199,21 @@ def hook_problems(target: str) -> list:
     return problems
 
 
+def deny_note(target: str) -> str:
+    """The secret-file deny rules are advice, not a failure: a project may want Claude to edit its .env."""
+    want = template_settings().get("permissions", {}).get("deny", [])
+    try:
+        have = json.load(open(os.path.join(target, ".claude", "settings.json"), encoding="utf-8"))
+        have = (have.get("permissions") or {}).get("deny") or []
+    except (OSError, ValueError, AttributeError):
+        have = []
+    gone = [r for r in want if r not in have]
+    if gone:
+        print("note: settings.json lacks the kit's secret-file deny rules, so Claude can read them: " + ", ".join(gone)
+              + f" (merge the 'permissions' block from {os.path.join(TEMPLATE, 'claude', 'settings.json')} if you want them)")
+    return f"secret-file deny rules {len(want) - len(gone)}/{len(want)}"
+
+
 def check_ignores(repo: str) -> list:
     """Runs git check-ignore in `repo` (git applies the last matching rule and negations itself)."""
     def ignored(path):
@@ -269,7 +284,7 @@ def verify(target: str):
             pass
     if unknown:
         problems.append("template uses unknown placeholders: " + ", ".join(sorted(unknown)))
-    return problems, f"now_check {nc} · hooks registered · {ignore_status} · scripts compile"
+    return problems, f"now_check {nc} · hooks registered · {deny_note(target)} · {ignore_status} · scripts compile"
 
 
 def compare(project: str) -> int:

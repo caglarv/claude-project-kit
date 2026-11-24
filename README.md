@@ -70,7 +70,7 @@ The script never overwrites a file that already exists. If your project already 
 ├── data/              raw/personal data, kept out of git
 ├── .gitignore
 └── .claude/
-    ├── settings.json  registers the hooks below
+    ├── settings.json  registers the hooks below and blocks Claude from reading secret files
     ├── hooks/         8 hook scripts + 5 helpers: state_io.py, py.sh, secret_filter.py, decisions.py, memory_audit.py (see below)
     └── skills/close-out/SKILL.md
 ```
@@ -83,6 +83,7 @@ The hooks, and when they run:
 - **On chat end** (`safety_net.py`): if no close-out happened, writes git state, your last messages and the next step to `.claude/state/`.
 - **During close-out** (`close.py`, `decisions.py`, `memory_audit.py`): archives NOW.md, appends its "Dead ends" and "Decision:" lines to `evidence/DECISIONS.md` (NOW.md keeps only 5; this list is never trimmed, and a decision reworded at a later close-out isn't added twice), writes `resume_prompt.md`, and lists memory problems read-only: notes missing from `MEMORY.md`, near-duplicate notes or lessons, file paths that no longer exist, notes untouched for 120+ days.
 - **Secret filter** (`secret_filter.py`): the session-end note and the claims log pass through it, so an API key or password you pasted into the chat is written as `[SECRET]` (GitHub, OpenAI, Anthropic, AWS, Stripe, Slack, Google, Telegram, JWT, private keys, `password=` style pairs …). Add your own literal values to `.claude/state/secret_extras.txt`, one per line.
+- **Secret files** (`settings.json` → `permissions.deny`): Claude can't read or edit `.env`, `.env.local`, `.env.*.local`, `.env.development`, `.env.production`, `.env.staging`, `.env.test`, `*.pem` or `id_rsa` / `id_ecdsa` / `id_ed25519`, in any folder of the project. `.env.example` stays readable. Per Claude Code's permissions docs, this covers its file tools and shell commands it recognises (`cat .env`); a script that opens the file itself is not stopped. If you want Claude to edit your `.env`, delete the matching line.
 - **Shared helper** (`state_io.py`): every hook writes to `.claude/state/` through it; it refuses symlinks that lead outside the project and never overwrites an earlier note.
 
 The plugin adds the `now-kit` skill at the scope you choose when installing it. The hooks are copied into each project when you set it up and only run inside that project. These hook scripts make no network requests of their own.
@@ -101,7 +102,7 @@ Optional, in the project's `.claude/settings.json` under an `"env"` block:
 - From a project, remove only what this kit added:
   1. In `.claude/hooks/` delete these thirteen files: `now_load.sh`, `now_check.py`, `due_dates.py`, `precompact_snapshot.sh`, `claim_check.py`, `close_reminder.py`, `safety_net.py`, `close.py`, `state_io.py`, `py.sh`, `secret_filter.py`, `decisions.py`, `memory_audit.py`. Delete the `.claude/hooks/` folder only if it is empty afterwards (other tools may keep their own hooks there).
   2. Delete `.claude/skills/close-out/`.
-  3. In `.claude/settings.json` remove only the hook entries whose command points to one of the files above — keep any hooks other tools added.
+  3. In `.claude/settings.json` remove only the hook entries whose command points to one of the files above — keep any hooks other tools added. Keep or remove the `permissions.deny` secret-file rules as you prefer.
   4. `.claude/state/` holds only this kit's logs and notes; delete it if you like.
   Your NOW.md, RULES.md and other notes stay; delete them too if you don't want them.
 
