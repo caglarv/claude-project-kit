@@ -2,12 +2,10 @@
   "permissions": {
     "deny": [
       "Read(.env)",
-      "Read(.env.local)",
-      "Read(.env.*.local)",
-      "Read(.env.development)",
-      "Read(.env.production)",
-      "Read(.env.staging)",
-      "Read(.env.test)",
+      "Read(.env.*)",
+      "Read(!.env.example)",
+      "Read(!.env.sample)",
+      "Read(!.env.template)",
       "Read(*.pem)",
       "Read(id_rsa)",
       "Read(id_ecdsa)",

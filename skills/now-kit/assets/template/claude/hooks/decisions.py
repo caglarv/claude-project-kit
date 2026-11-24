@@ -27,8 +27,7 @@ sys.path.insert(0, H)
 try:
     from secret_filter import scrub
 except Exception:
-    def scrub(text: str) -> str:
-        return text
+    scrub = None  # without the filter nothing is written (append() checks), as in claim_check and safety_net
 
 SECTION = "## Dead ends"
 DECISION_LINE = re.compile(r"(?i)^\s*(?:[-*]\s*)?\**decision\**\s*(?:\([^)]*\))?\s*\**\s*:")
@@ -113,6 +112,8 @@ def inside_root(path: str) -> bool:
 
 
 def append(sources, out: str) -> int:
+    if scrub is None:
+        raise OSError("secret_filter.py is missing; decisions not written for safety")
     keys, sets = existing(out)
     new = []
     for path in sources:

@@ -25,12 +25,14 @@ PATTERNS = (
     re.compile(r"(?<=://)[^/\s?#:@]*:[^/\s?#@]+(?=@)"),
     # ?token=... &password=...
     re.compile(r"(?i)(?<=[?&])" + _KEY_NAME + r"=[^&\s]{6,}"),
-    # api_key = "...", PASSWORD: xyz, "token": "..."  (value ≥8 chars)
+    # api_key = "...", PASSWORD: xyz, "token": "..."  (value ≥8 chars). After the key word only `_suffix` parts
+    # may follow (SECRET_KEY, TOKEN_V2), so ordinary words that merely start with one (tokenizer, secretary) pass.
     re.compile(r"""(?i)(?<![A-Za-z0-9_])["']?[A-Za-z0-9_]*""" + _KEY_NAME +
-               r"""[A-Za-z0-9_]*["']?\s*[:=]\s*(?:"[^"\s]{8,}"|'[^'\s]{8,}'|[^\s"',;]{8,})"""),
+               r"""(?:_[A-Za-z0-9]+)*["']?\s*[:=]\s*(?:"[^"\s]{8,}"|'[^'\s]{8,}'|[^\s"',;]{8,})"""),
     re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{20,}"),
     re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,255}\b"),
     re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,255}\b"),
+    re.compile(r"\bglpat-[A-Za-z0-9_-]{20,255}(?![A-Za-z0-9_-])"),                # GitLab
     re.compile(r"\bhf_[A-Za-z0-9]{34}(?![A-Za-z0-9])"),
     re.compile(r"\bsk-(?:ant-|proj-)?[A-Za-z0-9_-]{20,255}(?![A-Za-z0-9_-])"),   # OpenAI / Anthropic
     re.compile(r"\b[sr]k_(?:live|test)_[A-Za-z0-9]{16,255}\b"),                   # Stripe
